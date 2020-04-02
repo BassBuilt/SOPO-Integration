@@ -85,6 +85,9 @@ void draw() {
   
   // Display panel
   image(panel, width / 2 - panelSize / 2, height / 2 - panelSize / 2, panelSize, panelSize); 
+
+  if (frameCount % 8 == 0) 
+    saveFrame("img-####.png");
   
   handleInput();
 }

@@ -42,8 +42,8 @@ void setup() {
   
   keys = new boolean[20];
   
-  img1 = loadImage("am.png");
-  img2 = loadImage("text2.png");
+  img1 = loadImage("images/am.png");
+  img2 = loadImage("images/text2.png");
 }
 
 void draw() {
@@ -85,9 +85,6 @@ void draw() {
   
   // Display panel
   image(panel, width / 2 - panelSize / 2, height / 2 - panelSize / 2, panelSize, panelSize); 
-
-  if (frameCount % 8 == 0) 
-    saveFrame("img-####.png");
   
   handleInput();
 }
@@ -225,7 +222,7 @@ class Camera {
               if (random(1) < 0.5) {
                 panel.set(RENDER_FLAB * 16 + 16 * i + subI, RENDER_FLAB * 16 + 16 * j + subJ, color(20)); 
               } else {        
-                panel.set(RENDER_FLAB * 16 + 16 * i + subI, RENDER_FLAB * 16 + 16 * j + subJ, lerpColor(color(20), color(80), 0.04)); 
+                panel.set(RENDER_FLAB * 16 + 16 * i + subI, RENDER_FLAB * 16 + 16 * j + subJ, color(25)); 
               }
             }
           }      

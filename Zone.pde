@@ -8,6 +8,7 @@ class Zone {
  
   boolean[] outlets;
   float elevation;
+  String biome;
   
   Zone(Zone superZone, int seed, String type, int x, int y, int depth) {
     this.superZone = superZone;
@@ -93,8 +94,18 @@ void generateWorld(Zone zone) {
   for (int i = 0; i < 16; i++) {
     for (int j = 0; j < 16; j++) {
       String type;
+      String biome = null;
       if (islandMap[i][j]) {
         type = "A_ISLAND";
+        noiseSeed(zone.seed * 473);
+        float biomeValue = noise(i / 8.0, j / 8.0);
+        if (biomeValue < 0.3) {
+          biome = "REDLAND";
+        } else if (biomeValue < 0.5) {
+          biome = "SAVANNA";
+        } else {
+          biome = "GRASSLAND";
+        }
       } else {
         type = "A_OCEAN";
       }
@@ -107,6 +118,7 @@ void generateWorld(Zone zone) {
       
       subZones[i][j] = new Zone(zone, (int) random(MAX_INT), type,
         zone.x + (int) (i * pow(16, MAX_DEPTH - (zone.depth + 1))), zone.y + (int) (j * pow(16, MAX_DEPTH - (zone.depth + 1))), zone.depth + 1);
+      subZones[i][j].biome = biome;
     }
   }
 }
@@ -135,7 +147,10 @@ Zone recursiveFindZone(Zone zone, int x, int y, int depth) {
   return recursiveFindZone(zone.subZones[i][j], x, y, depth);
 }
 
-int typeToColor(String type, float elevation) {
+int getZoneColor(Zone zone) {
+  String type = zone.type;
+  float elevation = zone.elevation;
+  String biome = zone.biome;
   switch (type) {
     case "A_SPACE":
     case "B_SPACE":
@@ -143,47 +158,82 @@ int typeToColor(String type, float elevation) {
     case "D_SPACE":
       return color(20);  
     case "A_ISLAND":
-      return #bfab77;  
+      if (biome.equals("REDLAND"))
+        return #db987a;  
+      if (biome.equals("SAVANNA"))
+        return #bfab77;  
+      if (biome.equals("GRASSLAND"))
+        return #688660;
     case "B_ISLAND":
     case "C_ISLAND":
     case "D_ISLAND":
-      if (elevation < 0.09) {
+      if (elevation < 0.09)
         return #5f9da0;
-      } else if (elevation < 0.15) {
+      if (elevation < 0.15)
         return #7fbdc0;
-      } else if (elevation < 0.255) {
+      if (elevation < 0.255)
         return #9fdde0;
-      }
       float waterLevel = map(cos(frameCount / 40.0), -1, 1, 0.255, 0.26);
-      if (elevation < waterLevel) {
+      if (elevation < waterLevel)
         return #9fdde0;
+      float wetSandLevel = max(waterLevel, map(frameCount % (TWO_PI * 40), TWO_PI * 40, 0, 0.257, 0.26)); 
+      if (biome.equals("REDLAND")) {   
+        // Wet sand
+        if (elevation < wetSandLevel)
+          return #efce9d;
+        // Dry sand
+        if (elevation < 0.27)
+          return #ffdead;
+        // Low ground
+        if (elevation < 0.36)
+          return #f29b80;   
+        // Middle ground
+        if (elevation < 0.41)
+          return #db987a;
+        // High ground
+        if (elevation < 0.5) 
+          return #c49474; 
+        // Snow
+        return #f7fae2;    
       }
-      float wetSandLevel = max(waterLevel, map(frameCount % (TWO_PI * 40), TWO_PI * 40, 0, 0.257, 0.26));      
-      if (elevation < wetSandLevel) {
-        return #efeebd;
-      } else if (elevation < 0.3) {
-        return #fffecd;
-      } else if (elevation < 0.36) {
-        return #cab782;   
-      } else if (elevation < 0.41) {
-        return #bfab77;
-      } else if (elevation < 0.5) {
-        return #baa772; 
-      } else {
-        return #f7fae2;       
-      }        
-        /**
-      } else if (elevation < 0.27) {
-        return #fff59d;
-      } else if (elevation < 0.36) {
-        return #b7ca82;   
-      } else if (elevation < 0.41) {
-        return #abbf77;
-      } else if (elevation < 0.5) {
-        return #a7ba72;      
-      } else {
-        return #f7fae2;        
-      }*/
+      if (biome.equals("SAVANNA")) {  
+        // Wet sand
+        if (elevation < wetSandLevel)
+          return #efeebd;
+        // Dry sand
+        if (elevation < 0.3)
+          return #fffecd;
+        // Low ground
+        if (elevation < 0.36)
+          return #cab782;
+        // Middle ground
+        if (elevation < 0.41)
+          return #bfab77;
+        // High ground
+        if (elevation < 0.5) 
+          return #baa772;
+        // Snow
+        return #f7fae4;    
+      }
+      if (biome.equals("GRASSLAND")) {
+        // Wet sand
+        if (elevation < wetSandLevel)
+          return #efdead;
+        // Dry sand
+        if (elevation < 0.3)
+          return #ffeebd;
+        // Low ground
+        if (elevation < 0.36)
+          return #81a674;  
+        // Middle ground
+        if (elevation < 0.41)
+          return #799d6c;
+        // High ground
+        if (elevation < 0.5) 
+          return #688660;
+        // Snow
+        return #f7fae4;    
+      }
     case "A_OCEAN":
     case "B_OCEAN":
     case "C_OCEAN":
@@ -196,7 +246,12 @@ int typeToColor(String type, float elevation) {
     case "C_BUILDING":
       return #757575;
     case "C_FIELD":
-      return #ffccbc;
+      if (biome.equals("REDLAND"))
+        return #ffffe0;
+      if (biome.equals("SAVANNA"))
+        return #ffccbc;
+      if (biome.equals("GRASSLAND"))
+        return #ecf29b;
     case "D_ASPHALT":
       return #cdcdcd;
       //return #bdbdbd;
@@ -205,9 +260,19 @@ int typeToColor(String type, float elevation) {
     case "D_WOOD":
       return #b0997d;
     case "D_SOIL":
-      return #857464;
+      if (biome.equals("REDLAND"))
+        return #a86b59;
+      if (biome.equals("SAVANNA"))
+        return #857464;
+      if (biome.equals("GRASSLAND"))
+        return #5e5445;      
     case "D_FLOWER":
-      return #ffccbc;
+      if (biome.equals("REDLAND"))
+        return #ffffe0;
+      if (biome.equals("SAVANNA"))
+        return #ffccbc;
+      if (biome.equals("GRASSLAND"))
+        return #ecf29b;  
     default:
       return #000000;
   }

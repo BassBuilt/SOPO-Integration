@@ -73,6 +73,7 @@ void generateA_Island(Zone zone) {
         zone.y + (int) (j * pow(16, MAX_DEPTH - (zone.depth + 1))), zone.depth + 1);
       subZones[i][j].elevation = elevation;
       subZones[i][j].outlets = outletsMatrix.matrix[i][j].outlets;
+      subZones[i][j].biome = zone.biome;
     }
   }
 }

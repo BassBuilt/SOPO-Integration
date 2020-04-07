@@ -34,7 +34,7 @@ void setup() {
   ((PGraphicsOpenGL) panel).textureSampling(2);
 
   noiseDetail(4, 0.4);
-  world = new Zone(null, 5, "WORLD", 0, 0, 0);
+  world = new Zone(null, 35, "WORLD", 0, 0, 0);
   world.generate();
 
   cam = new Camera(world);
@@ -211,7 +211,7 @@ class Camera {
             Zone zoneToDraw = findZone(currentCamX + subI * stepSize, currentCamY + subJ * stepSize, depth + 1);
             if (zoneToDraw != null && !zoneToDraw.type.contains("SPACE")) {
               randomSeed(zoneToDraw.seed);
-              int c = typeToColor(zoneToDraw.type, zoneToDraw.elevation);
+              int c = getZoneColor(zoneToDraw);
               if (random(1) < 0.5) {
                 panel.set(RENDER_FLAB * 16 + 16 * i + subI, RENDER_FLAB * 16 + 16 * j + subJ, c); 
               } else {

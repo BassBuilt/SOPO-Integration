@@ -11,6 +11,7 @@ void generateC_Island(Zone zone) {
         zone.x + (int) (i * pow(16, MAX_DEPTH - (zone.depth + 1))),
         zone.y + (int) (j * pow(16, MAX_DEPTH - (zone.depth + 1))), zone.depth + 1);   
       subZones[i][j].elevation = elevation;
+      subZones[i][j].biome = zone.biome;
     }
   }
 }
@@ -85,6 +86,7 @@ void generateC_Road(Zone zone) {
         zone.x + (int) (i * pow(16, MAX_DEPTH - (zone.depth + 1))),
         zone.y + (int) (j * pow(16, MAX_DEPTH - (zone.depth + 1))), zone.depth + 1);   
       subZones[i][j].elevation = elevation;
+      subZones[i][j].biome = zone.biome;
     }
   }  
 }
@@ -178,6 +180,7 @@ void generateC_Building(Zone zone) {
     }        
   }
   
+  // Finally, instantiate
   for (int i = 0; i < 16; i++) {
     for (int j = 0; j < 16; j++) {  
       float centerX = zone.x + (i + 0.5) * pow(16, MAX_DEPTH - (zone.depth + 1));
@@ -187,6 +190,7 @@ void generateC_Building(Zone zone) {
         zone.x + (int) (i * pow(16, MAX_DEPTH - (zone.depth + 1))),
         zone.y + (int) (j * pow(16, MAX_DEPTH - (zone.depth + 1))), zone.depth + 1);   
       subZones[i][j].elevation = elevation;
+      subZones[i][j].biome = zone.biome;
     }
   }  
 }
@@ -261,6 +265,7 @@ void generateC_Field(Zone zone) {
     }
   }
   
+  // Finally, instantiate
   for (int i = 0; i < 16; i++) {
     for (int j = 0; j < 16; j++) {  
       float centerX = zone.x + (i + 0.5) * pow(16, MAX_DEPTH - (zone.depth + 1));
@@ -270,6 +275,7 @@ void generateC_Field(Zone zone) {
         zone.x + (int) (i * pow(16, MAX_DEPTH - (zone.depth + 1))),
         zone.y + (int) (j * pow(16, MAX_DEPTH - (zone.depth + 1))), zone.depth + 1);   
       subZones[i][j].elevation = elevation;
+      subZones[i][j].biome = zone.biome;
     }
   }
 }

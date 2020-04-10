@@ -119,6 +119,7 @@ void generateWorld(Zone zone) {
       subZones[i][j] = new Zone(zone, (int) random(MAX_INT), type,
         zone.x + (int) (i * pow(16, MAX_DEPTH - (zone.depth + 1))), zone.y + (int) (j * pow(16, MAX_DEPTH - (zone.depth + 1))), zone.depth + 1);
       subZones[i][j].biome = biome;
+      subZones[i][j].generate();
     }
   }
 }
@@ -201,7 +202,7 @@ int getZoneColor(Zone zone) {
         if (elevation < wetSandLevel)
           return #efeebd;
         // Dry sand
-        if (elevation < 0.3)
+        if (elevation < 0.28)
           return #fffecd;
         // Low ground
         if (elevation < 0.36)
@@ -220,7 +221,7 @@ int getZoneColor(Zone zone) {
         if (elevation < wetSandLevel)
           return #efdead;
         // Dry sand
-        if (elevation < 0.3)
+        if (elevation < 0.28)
           return #ffeebd;
         // Low ground
         if (elevation < 0.36)

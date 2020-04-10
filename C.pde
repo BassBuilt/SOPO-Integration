@@ -192,7 +192,35 @@ void generateC_Building(Zone zone) {
       subZones[i][j].elevation = elevation;
       subZones[i][j].biome = zone.biome;
     }
-  }  
+  } 
+  
+  // Create 1 - 4 agents in this building
+  ArrayList<PVector> openPositions = new ArrayList<PVector>();
+  for (int i = 2; i < 14; i++) {
+    for (int j = 2; j < 14; j++) { 
+      if (typeMap[i][j].equals("D_WOOD")) {
+        openPositions.add(new PVector(i, j));
+      }
+    }
+  }
+  int numAgents = (int) random(1, 5);
+  for (int agentIndex = 0; agentIndex < numAgents; agentIndex++) {
+    PVector pos = openPositions.get((int) random(0, openPositions.size()));
+    agents.add(new Agent(zone.x + (int) pos.x, zone.y + (int) pos.y));
+    // Area within radius of newly placed agent not an option for new agents
+    int radius = 2;
+    for (int i = -radius; i <= radius; i++) {
+      for (int j = -radius; j <= radius; j++) {
+        for (int neighborOptionIndex = 0; neighborOptionIndex < openPositions.size(); neighborOptionIndex++) {
+          PVector openPosition = openPositions.get(neighborOptionIndex);
+          if (openPosition.x == pos.x + i && openPosition.y == pos.y + j) {
+            openPositions.remove(openPosition);
+          }
+        }
+      }  
+    }
+    
+  }
 }
 
 void generateC_Field(Zone zone) {
@@ -239,7 +267,8 @@ void generateC_Field(Zone zone) {
   // Plant crops
   for (int i = 0; i < 16; i++) {
     for (int j = 0; j < 16; j++) { 
-      // Check that neighbors are not grass (soil buffer) and is not corner and 
+      // Check that neighbors are not grass (soil buffer) and is not corner
+      // Also, randomly disallow a few plants
       boolean goodToPlant = (j % 2 == 0) && (random(1) < 0.95)
         && !(i == 0 && j == 0)
         && !(i == 15 && j == 0) 

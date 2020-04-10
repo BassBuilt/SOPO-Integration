@@ -1,11 +1,12 @@
-final float CONSTRUCTION_LOWER_LIMIT = 0.33;
+final float CONSTRUCTION_LOWER_LIMIT = 0.31;
 final float CONSTRUCTION_UPPER_LIMIT = 0.46;
 
 void generateA_Island(Zone zone) {
   randomSeed(zone.seed);
   noiseSeed(zone.seed);
   Zone[][] subZones = zone.subZones;  
-  boolean[][] landMap = new boolean[16][16]; 
+  boolean[][] landMap = new boolean[16][16];
+  boolean[][] cityOptionMap = new boolean[16][16]; 
   String[][] typeMap = new String[16][16];
 
   // Initialize elevationMap and typeMap
@@ -17,6 +18,10 @@ void generateA_Island(Zone zone) {
       if (getIslandElevation(zone, centerX, centerY) > CONSTRUCTION_LOWER_LIMIT
           && getIslandElevation(zone, centerX, centerY) < CONSTRUCTION_UPPER_LIMIT) {
         landMap[i][j] = true;
+      }
+      if (getIslandElevation(zone, centerX, centerY) > CONSTRUCTION_LOWER_LIMIT + 0.02
+          && getIslandElevation(zone, centerX, centerY) < CONSTRUCTION_UPPER_LIMIT) {
+        cityOptionMap[i][j] = true;        
       }
       // Initialize value in typeMap
       typeMap[i][j] = "B_ISLAND";
@@ -31,16 +36,7 @@ void generateA_Island(Zone zone) {
   for (int tryIndex = 0; tryIndex < 600 && cityCount < maxNumCities; tryIndex++) {
     int i = (int) random(3, 12);
     int j = (int) random(3, 12);
-    if (landMap[i][j]
-        && landMap[i - 1][j - 1]
-        && landMap[i][j - 1]
-        && landMap[i + 1][j - 1]
-        && landMap[i - 1][j]
-        && landMap[i + 1][j]
-        && landMap[i - 1][j + 1]
-        && landMap[i][j + 1]
-        && landMap[i + 1][j + 1]
-        && landMap[i - 1][j - 1]
+    if (cityOptionMap[i][j]
         && !typeMap[i][j - 1].equals("B_TOWN")
         && !typeMap[i + 1][j - 1].equals("B_TOWN")
         && !typeMap[i - 1][j].equals("B_TOWN")

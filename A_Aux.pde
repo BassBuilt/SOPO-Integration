@@ -10,7 +10,7 @@ float getIslandElevation(Zone island, float x, float y) {
   float edgeDistance = max(abs(x - islandCenterX), abs(y - islandCenterY));
   distanceScalar *= constrain(map(edgeDistance,
     7.0 * (int) pow(16, MAX_DEPTH - (island.depth + 1)),
-    8.0 * (int) pow(16, MAX_DEPTH - (island.depth + 1)), 1, 0.0), 0.0, 1);
+    8.0 * (int) pow(16, MAX_DEPTH - (island.depth + 1)), 1, 0), 0, 1);
   return distanceScalar * noise(x / 4.0 / pow(16, MAX_DEPTH - (island.depth + 1)),
       y / 4.0 / pow(16, MAX_DEPTH - (island.depth + 1)));
 }

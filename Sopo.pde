@@ -14,7 +14,9 @@ Zone world;
 
 Camera cam;
 Player player;
-boolean inConversation;
+Conversation conversation; 
+
+ArrayList<Agent> agents;
 
 boolean cursor;
 int cursorTimer;
@@ -34,11 +36,12 @@ void setup() {
   ((PGraphicsOpenGL) panel).textureSampling(2);
 
   noiseDetail(4, 0.4);
-  world = new Zone(null, 35, "WORLD", 0, 0, 0);
+  world = new Zone(null, 125, "WORLD", 0, 0, 0);
   world.generate();
 
   cam = new Camera(world);
   player = new Player(world.subZones[8][8]);
+  agents = new ArrayList<Agent>();
   
   keys = new boolean[20];
   
@@ -62,7 +65,7 @@ void draw() {
   panel.updatePixels();
 
   // Conversation panel
-  if (inConversation) {
+  if (conversation != null) {
     int topY;
     // Conversation panel should be on opposite vertical half as player
     if (player.y < cam.y + 11 * (int) pow(16, MAX_DEPTH - (cam.depth + 1))) {
@@ -90,46 +93,57 @@ void draw() {
 }
 
 void handleInput() {
-  // Check if interact key triggered
-  if (keys[7]) {
-    inConversation = !inConversation;
+  // Try to enter conversation
+  if (conversation == null && keys[7] && player.depth == MAX_DEPTH) {
+    for (Agent agent : agents) {
+      if (abs(agent.x - player.x) <= 1 && abs(agent.y - player.y) <= 1) {
+        conversation = new Conversation(agent);
+        break;
+      }
+    }    
     keys[7] = false;
   }
   
-  if (!inConversation) {
-    if (keys[1]) {
-      // Left
-      player.x -= MOVEMENT_FACTOR * (int) pow(16, MAX_DEPTH - (player.depth));
-      if (player.x < cam.x + CAMERA_PUSH_MARGIN * (int) pow(16, MAX_DEPTH - (cam.depth + 1))) {
-        cam.x -= MOVEMENT_FACTOR * (int) pow(16, MAX_DEPTH - (cam.depth + 1));
-      }
+  // Exit conversation
+  if (conversation != null && (keys[7] || keys[1] || keys[2] || keys[3] || keys[4])) {
+    conversation = null;
+    keys[7] = false;
+  }
+  
+  if (keys[1]) {
+    // Left
+    player.x -= MOVEMENT_FACTOR * (int) pow(16, MAX_DEPTH - (player.depth));
+    if (player.x < cam.x + CAMERA_PUSH_MARGIN * (int) pow(16, MAX_DEPTH - (cam.depth + 1))) {
+      cam.x -= MOVEMENT_FACTOR * (int) pow(16, MAX_DEPTH - (cam.depth + 1));
     }
-    if (keys[2]) {
-      // Right
-      player.x += MOVEMENT_FACTOR * (int) pow(16, MAX_DEPTH - (player.depth));
-      if (player.x > cam.x + (16 - CAMERA_PUSH_MARGIN) * (int) pow(16, MAX_DEPTH - (cam.depth + 1))) {
-        cam.x += MOVEMENT_FACTOR * (int) pow(16, MAX_DEPTH - (cam.depth + 1));
-      }
+  }
+  if (keys[2]) {
+    // Right
+    player.x += MOVEMENT_FACTOR * (int) pow(16, MAX_DEPTH - (player.depth));
+    if (player.x > cam.x + (16 - CAMERA_PUSH_MARGIN) * (int) pow(16, MAX_DEPTH - (cam.depth + 1))) {
+      cam.x += MOVEMENT_FACTOR * (int) pow(16, MAX_DEPTH - (cam.depth + 1));
     }
-    if (keys[3]) {
-      // Up
-      player.y -= MOVEMENT_FACTOR * (int) pow(16, MAX_DEPTH - (player.depth));
-      if (player.y < cam.y + CAMERA_PUSH_MARGIN * (int) pow(16, MAX_DEPTH - (cam.depth + 1))) {
-        cam.y -= MOVEMENT_FACTOR * (int) pow(16, MAX_DEPTH - (cam.depth + 1));  
-      }
+  }
+  if (keys[3]) {
+    // Up
+    player.y -= MOVEMENT_FACTOR * (int) pow(16, MAX_DEPTH - (player.depth));
+    if (player.y < cam.y + CAMERA_PUSH_MARGIN * (int) pow(16, MAX_DEPTH - (cam.depth + 1))) {
+      cam.y -= MOVEMENT_FACTOR * (int) pow(16, MAX_DEPTH - (cam.depth + 1));  
     }
-    if (keys[4]) {
-      // Down
-      player.y += MOVEMENT_FACTOR * (int) pow(16, MAX_DEPTH - (player.depth));
-      if (player.y > cam.y + (16 - CAMERA_PUSH_MARGIN) * (int) pow(16, MAX_DEPTH - (cam.depth + 1))) {
-        cam.y += MOVEMENT_FACTOR * (int) pow(16, MAX_DEPTH - (cam.depth + 1));   
-      }
+  }
+  if (keys[4]) {
+    // Down
+    player.y += MOVEMENT_FACTOR * (int) pow(16, MAX_DEPTH - (player.depth));
+    if (player.y > cam.y + (16 - CAMERA_PUSH_MARGIN) * (int) pow(16, MAX_DEPTH - (cam.depth + 1))) {
+      cam.y += MOVEMENT_FACTOR * (int) pow(16, MAX_DEPTH - (cam.depth + 1));   
     }
-    // Constrain camera
-    cam.constrainPos();
-    player.constrainPos();
-    
-    // Check for exiting to superZone
+  }
+  // Constrain camera
+  cam.constrainPos();
+  player.constrainPos();
+  
+  // Check for exiting to superZone
+  if (conversation == null) {
     if (keys[5] && cam.depth != 0) {
       int newPlayerX = player.x - player.x % (int) pow(16, MAX_DEPTH - (player.depth - 1));
       int newPlayerY = player.y - player.y % (int) pow(16, MAX_DEPTH - (player.depth - 1));
@@ -208,7 +222,10 @@ class Camera {
         int stepSize = (int) pow(16, MAX_DEPTH - (cam.depth + 1));
         for (int subI = 0; subI < 16; subI++) {
           for (int subJ = 0; subJ < 16; subJ++) {
-            Zone zoneToDraw = findZone(currentCamX + subI * stepSize, currentCamY + subJ * stepSize, depth + 1);
+            int x = currentCamX + subI * stepSize;
+            int y = currentCamY + subJ * stepSize;
+            Zone zoneToDraw = findZone(x, y, depth + 1);
+            // Draw zone
             if (zoneToDraw != null && !zoneToDraw.type.contains("SPACE")) {
               randomSeed(zoneToDraw.seed);
               int c = getZoneColor(zoneToDraw);
@@ -227,6 +244,12 @@ class Camera {
             }
           }      
         }
+      }
+    }
+    // Draw agents in camera
+    if (cam.depth == MAX_DEPTH - 1) {
+      for (Agent agent : agents) {
+        panel.set(agent.x - cam.x + 16, agent.y - cam.y + 16, color(205, 165, 205));
       }
     }
   }

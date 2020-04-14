@@ -194,7 +194,7 @@ void generateC_Building(Zone zone) {
     }
   } 
   
-  // Create 1 - 4 agents in this building
+  // Create 1 - 2 agents in this building
   ArrayList<PVector> openPositions = new ArrayList<PVector>();
   for (int i = 2; i < 14; i++) {
     for (int j = 2; j < 14; j++) { 
@@ -203,10 +203,10 @@ void generateC_Building(Zone zone) {
       }
     }
   }
-  int numAgents = (int) random(1, 5);
+  int numAgents = (int) random(1, 3);
   for (int agentIndex = 0; agentIndex < numAgents; agentIndex++) {
     PVector pos = openPositions.get((int) random(0, openPositions.size()));
-    agents.add(new Agent(zone.x + (int) pos.x, zone.y + (int) pos.y));
+    agents.add(new Agent((int) random(MAX_INT), zone.x + (int) pos.x, zone.y + (int) pos.y));
     // Area within radius of newly placed agent not an option for new agents
     int radius = 2;
     for (int i = -radius; i <= radius; i++) {
@@ -218,8 +218,7 @@ void generateC_Building(Zone zone) {
           }
         }
       }  
-    }
-    
+    }    
   }
 }
 

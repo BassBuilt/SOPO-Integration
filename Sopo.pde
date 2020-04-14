@@ -9,6 +9,8 @@ final int CAMERA_PUSH_MARGIN = 3 * MOVEMENT_FACTOR;
 
 PGraphics panel;
 int panelSize;
+PGraphics conversationPanel;
+PGraphics agentPanel;
 
 Zone world;
 
@@ -34,6 +36,10 @@ void setup() {
   noSmooth();
   panel = createGraphics((RENDER_FLAB * 2 + 1) * 16, (RENDER_FLAB * 2 + 1) * 16, P2D); 
   ((PGraphicsOpenGL) panel).textureSampling(2);
+  conversationPanel = createGraphics(44, 18, P2D); 
+  ((PGraphicsOpenGL) conversationPanel).textureSampling(2);
+  agentPanel = createGraphics(16, 16, P2D); 
+  ((PGraphicsOpenGL) agentPanel).textureSampling(2);
 
   noiseDetail(4, 0.4);
   world = new Zone(null, 125, "WORLD", 0, 0, 0);
@@ -52,6 +58,24 @@ void setup() {
 void draw() {
   background(20);
 
+  if (conversation != null) {
+    // Draw agent panel
+    agentPanel.beginDraw();
+    conversation.agent.sprite.drawImage();
+    agentPanel.endDraw();
+
+    // Draw conversation panel
+    conversationPanel.beginDraw();   
+    conversationPanel.fill(255);
+    conversationPanel.rect(0, 0, 43, 17);
+    conversationPanel.rect(0, 0, 17, 17);
+
+    // Draw agent panel on conversation panel
+    conversationPanel.image(agentPanel, 1, 1, 16, 16);    
+    conversationPanel.endDraw();
+  } 
+  
+  // Draw main panel
   panel.beginDraw();
   // Render camera
   cam.render();
@@ -62,9 +86,9 @@ void draw() {
   panel.loadPixels();
   //panel.pixels[subI + 16 + (subJ + 16) * 48] = lerpColor(panel.pixels[subI + 16 + (subJ + 16) * 16], color(250), .9);
   panel.pixels[subI + 16 * RENDER_FLAB + (subJ + 16 * RENDER_FLAB) * (RENDER_FLAB * 2 + 1) * 16] = color(250);
-  panel.updatePixels();
+  panel.updatePixels(); 
 
-  // Conversation panel
+  // Draw conversation panel on main panel
   if (conversation != null) {
     int topY;
     // Conversation panel should be on opposite vertical half as player
@@ -73,19 +97,11 @@ void draw() {
     } else {
       topY = 2; 
     }
-    
-    panel.fill(255);
-    panel.rect(2, topY, 43, 17);
-    panel.rect(2, topY, 17, 17);
-    panel.image(img1, 3, topY + 1, 16, 16);
-    
-    panel.fill(20);
-    panel.textSize(9);
-    panel.image(img2, 20, topY + 1, 21, 16);
+    panel.image(conversationPanel, 2, topY);
   }
-    
-  panel.endDraw();
   
+  panel.endDraw();
+
   // Display panel
   image(panel, width / 2 - panelSize / 2, height / 2 - panelSize / 2, panelSize, panelSize); 
   
